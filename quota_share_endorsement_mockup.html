@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quota Share – Endorsement / Change Premium</title>
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --brand:      #1a3a5c;
+      --brand-lt:   #2c5f8a;
+      --accent:     #f0a500;
+      --bg:         #f4f6f9;
+      --card:       #ffffff;
+      --border:     #d0d7e2;
+      --text:       #1e2a38;
+      --text-muted: #6b7a90;
+      --success:    #2d8a4e;
+      --danger:     #c0392b;
+      --info:       #1f6fa8;
+      --tag-bg:     #e8f0fb;
+      --tag-text:   #1a3a5c;
+      --radius:     6px;
+      --shadow:     0 2px 8px rgba(0,0,0,.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* ── Top application bar ── */
+    .app-bar {
+      background: var(--brand);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+      height: 52px;
+    }
+    .app-bar .logo { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
+    .app-bar .breadcrumb { font-size: 12px; color: #a8bfd6; margin-left: 8px; }
+    .app-bar .breadcrumb span { color: #fff; }
+    .app-bar .spacer { flex: 1; }
+    .app-bar .user { font-size: 13px; }
+
+    /* ── Transaction header banner ── */
+    .txn-header {
+      background: var(--brand-lt);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .txn-header h1 { font-size: 16px; font-weight: 600; }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .badge-follower { background: #ffd166; color: #1a3a5c; }
+    .badge-midterm  { background: #06d6a0; color: #0a2e22; }
+    .badge-pending  { background: #adb5bd; color: #fff; }
+    .txn-meta { font-size: 12px; color: #c4d9ed; margin-left: auto; text-align: right; }
+    .txn-meta strong { color: #fff; }
+
+    /* ── Main layout ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      padding: 20px 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      background: var(--brand);
+      color: #fff;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-header .icon { font-size: 15px; }
+    .card-body { padding: 16px; }
+
+    /* ── Policy info strip ── */
+    .policy-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .pi-item label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 2px;
+    }
+    .pi-item .pi-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .pi-item .pi-val.highlight { color: var(--brand-lt); }
+
+    /* ── Section headers ── */
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--brand);
+      border-bottom: 2px solid var(--brand);
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Form rows ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--brand-lt);
+      box-shadow: 0 0 0 2px rgba(44,95,138,.15);
+    }
+    .form-group input[readonly] {
+      background: #f0f4f8;
+      color: var(--text-muted);
+      cursor: default;
+    }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+
+    /* ── Info callout ── */
+    .info-callout {
+      background: var(--tag-bg);
+      border-left: 4px solid var(--info);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--info);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .info-callout strong { font-weight: 700; }
+
+    /* ── Premium calculation table ── */
+    .calc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .calc-table th {
+      background: #eef2f8;
+      color: var(--brand);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .calc-table th.num,
+    .calc-table td.num { text-align: right; }
+    .calc-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .calc-table tr:last-child td { border-bottom: none; }
+    .calc-table .subtotal td {
+      background: #f7f9fc;
+      font-weight: 600;
+    }
+    .calc-table .total td {
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+    }
+    .calc-table input.inline {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      width: 110px;
+      text-align: right;
+      font-size: 13px;
+    }
+    .calc-table .delta-pos { color: var(--success); font-weight: 600; }
+    .calc-table .delta-neg { color: var(--danger);  font-weight: 600; }
+
+    /* ── Split indicator bar ── */
+    .split-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 7px;
+      overflow: hidden;
+      margin: 6px 0 4px;
+    }
+    .split-bar .hull { background: #1a3a5c; }
+    .split-bar .liab { background: #f0a500; }
+    .split-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .split-legend span { display: flex; align-items: center; gap: 5px; }
+    .split-legend .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-hull { background: #1a3a5c; }
+    .dot-liab { background: #f0a500; }
+
+    /* ── Summary sidebar ── */
+    .summary-block {
+      background: #f7f9fc;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .summary-block .s-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 4px 0;
+      font-size: 13px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .s-label { color: var(--text-muted); }
+    .summary-row .s-val  { font-weight: 600; }
+    .summary-row.total-row {
+      border-top: 2px solid var(--brand);
+      padding-top: 8px;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+    .summary-row.total-row .s-val { color: var(--brand); font-size: 15px; }
+    .change-premium-row .s-val { color: var(--success); }
+
+    /* ── Status timeline ── */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 0;
+    }
+    .tl-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+    }
+    .tl-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .tl-dot.done   { background: var(--success); }
+    .tl-dot.active { background: var(--accent); border: 2px solid var(--brand); }
+    .tl-dot.todo   { background: var(--border); }
+    .tl-item .tl-label { font-weight: 600; color: var(--text); }
+    .tl-item .tl-sub   { color: var(--text-muted); font-size: 11px; }
+
+    /* ── Action bar ── */
+    .action-bar {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+    }
+    .btn {
+      padding: 9px 22px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      letter-spacing: .2px;
+      transition: opacity .15s, box-shadow .15s;
+    }
+    .btn:hover { opacity: .88; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+    .btn-primary   { background: var(--brand);    color: #fff; }
+    .btn-accent    { background: var(--accent);   color: #1a1a1a; }
+    .btn-secondary { background: #e4e9f0; color: var(--text); }
+    .btn-danger    { background: var(--danger);   color: #fff; }
+    .action-bar .spacer { flex: 1; }
+
+    /* ── Validation banner ── */
+    .validation-banner {
+      background: #fff4e0;
+      border: 1px solid #f5c26b;
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #7a4900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .validation-banner .vicon { font-size: 16px; }
+
+    /* ── Helpers ── */
+    .text-right { text-align: right; }
+    .mt-8  { margin-top: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+    }
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════ APP BAR ══════════════════════ -->
+<div class="app-bar">
+  <div class="logo">Unity</div>
+  <div class="breadcrumb">
+    Policies &rsaquo; <span>QS-2025-009841</span> &rsaquo; Endorsements &rsaquo;
+    <span>Change Premium – Midterm</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="user">R. Lombardo &nbsp;|&nbsp; IAT Aviation</div>
+</div>
+
+<!-- ══════════════════════ TXN HEADER ══════════════════════ -->
+<div class="txn-header">
+  <div>
+    <h1>Endorsement Transaction &mdash; Change Premium</h1>
+    <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;">
+      <span class="badge badge-follower">Following</span>
+      <span class="badge badge-midterm">Midterm</span>
+      <span class="badge badge-pending">Pending Approval</span>
+    </div>
+  </div>
+  <div class="txn-meta">
+    <div>Policy: <strong>QS-2025-009841</strong></div>
+    <div>Effective Date: <strong>03/15/2025</strong></div>
+    <div>Endorsement Eff.: <strong>07/01/2025</strong></div>
+    <div>Insured: <strong>Apex Air Holdings LLC</strong></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ MAIN GRID ══════════════════════ -->
+<div class="main">
+
+  <!-- ─── LEFT COLUMN (main form) ─── -->
+  <div style="display:flex; flex-direction:column; gap:20px;">
+
+    <!-- Policy Info Strip -->
+    <div class="card">
+      <div class="card-header"><span class="icon">📋</span> Policy Overview</div>
+      <div class="card-body">
+        <div class="policy-strip">
+          <div class="pi-item">
+            <label>Policy Number</label>
+            <div class="pi-val highlight">QS-2025-009841</div>
+          </div>
+          <div class="pi-item">
+            <label>Program Type</label>
+            <div class="pi-val">Quota Share – Following</div>
+          </div>
+          <div class="pi-item">
+            <label>Following %</label>
+            <div class="pi-val highlight">25%</div>
+          </div>
+          <div class="pi-item">
+            <label>Lead Carrier</label>
+            <div class="pi-val">Global Wings Re</div>
+          </div>
+          <div class="pi-item">
+            <label>Policy Period</label>
+            <div class="pi-val">03/15/2025 – 03/15/2026</div>
+          </div>
+          <div class="pi-item">
+            <label>Original Total Premium</label>
+            <div class="pi-val">$48,000</div>
+          </div>
+          <div class="pi-item">
+            <label>Our Share (25%)</label>
+            <div class="pi-val highlight">$12,000</div>
+          </div>
+          <div class="pi-item">
+            <label>Transaction Type</label>
+            <div class="pi-val">Midterm Change</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead Carrier Endorsement Details -->
+    <div class="card">
+      <div class="card-header"><span class="icon">📨</span> Lead Carrier Endorsement Details</div>
+      <div class="card-body">
+
+        <div class="info-callout">
+          <strong>ℹ️ Following Policy Notice:</strong> As the following carrier, no endorsement document
+          is issued. This transaction records the premium change notified by the lead carrier and
+          calculates IAT's proportional share. No re-rating is performed.
+        </div>
+
+        <div class="section-title">Lead Endorsement Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Lead Endorsement Reference #</label>
+            <input type="text" value="GWR-ENDORS-2025-0441" />
+          </div>
+          <div class="form-group">
+            <label>Lead Endorsement Type</label>
+            <select>
+              <option selected>Additional Aircraft Added</option>
+              <option>Aircraft Removed</option>
+              <option>Coverage Change</option>
+              <option>Insured Change / Named Additional Insured</option>
+              <option>Flat Charge / Fee</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lead Endorsement Effective Date</label>
+            <input type="date" value="2025-07-01" />
+          </div>
+          <div class="form-group">
+            <label>Lead Notification Received</label>
+            <input type="date" value="2025-06-18" />
+          </div>
+          <div class="form-group full-width">
+            <label>Description of Change (from Lead)</label>
+            <textarea>Added N44567 (Cessna Citation CJ3) to the fleet schedule effective 07/01/2025. Short-rate pro-rata charge applied by lead for remainder of policy term.</textarea>
+          </div>
+        </div>
+
+        <div class="section-title">Underwriter Agreement</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Agree with Lead Change?</label>
+            <select>
+              <option selected>Yes – Accept &amp; Follow</option>
+              <option>No – Dispute / Refer to Management</option>
+              <option>Under Review</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Underwriter</label>
+            <input type="text" value="R. Lombardo" readonly />
+          </div>
+          <div class="form-group full-width">
+            <label>Underwriter Notes</label>
+            <textarea placeholder="Optional — add internal notes regarding this change..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Premium Entry -->
+    <div class="card">
+      <div class="card-header"><span class="icon">💰</span> Change Premium Calculation</div>
+      <div class="card-body">
+
+        <div class="validation-banner">
+          <span class="vicon">⚠️</span>
+          <div>
+            <strong>Hull &amp; Liability split required.</strong>
+            Enter the lead's total endorsement premium change, then split into Hull (Physical Damage)
+            and Liability. IAT share is auto-calculated at <strong>25%</strong>.
+          </div>
+        </div>
+
+        <div class="section-title">Lead Carrier Premium Change (Full 100%)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Lead Endorsement Premium Change ($)</label>
+            <input type="text" value="5,000.00" />
+          </div>
+          <div class="form-group">
+            <label>Change Direction</label>
+            <select>
+              <option selected>Additional Premium (+)</option>
+              <option>Return Premium (−)</option>
+              <option>Flat / No Charge</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pro-rata / Short-rate?</label>
+            <select>
+              <option>Full Term</option>
+              <option selected>Pro-rata</option>
+              <option>Short-rate</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Days Remaining on Term</label>
+            <input type="text" value="257" />
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Hull / Liability split bar -->
+        <div class="section-title">Hull vs. Liability Premium Split</div>
+        <div class="split-bar">
+          <div class="hull" style="width:60%"></div>
+          <div class="liab" style="width:40%"></div>
+        </div>
+        <div class="split-legend">
+          <span><i class="dot dot-hull"></i> Hull / Physical Damage — 60%</span>
+          <span><i class="dot dot-liab"></i> Liability — 40%</span>
+        </div>
+
+        <!-- Calculation Table -->
+        <table class="calc-table">
+          <thead>
+            <tr>
+              <th>Coverage</th>
+              <th>Lead Total Change ($)</th>
+              <th>Following % Entry</th>
+              <th class="num">IAT Share ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hull / Physical Damage</td>
+              <td><input class="inline" type="text" value="3,000.00" /></td>
+              <td>
+                <input class="inline" type="text" value="25%" readonly style="width:60px;" />
+              </td>
+              <td class="num delta-pos">+ $750.00</td>
+            </tr>
+            <tr>
+              <td>Liability</td>
+              <td><input class="inline" type="text" value="2,000.00" /></td>
+              <td>
+                <input class="inline" type="text" value="25%" readonly style="width:60px;" />
+              </td>
+              <td class="num delta-pos">+ $500.00</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="3">Total Change Premium (IAT Share)</td>
+              <td class="num delta-pos">+ $1,250.00</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr class="divider" />
+
+        <div class="section-title">Revised Premium Summary (IAT Share Only)</div>
+        <table class="calc-table">
+          <thead>
+            <tr>
+              <th>Coverage</th>
+              <th class="num">Original Premium</th>
+              <th class="num">Change Amount</th>
+              <th class="num">Revised Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hull / Physical Damage</td>
+              <td class="num">$7,200.00</td>
+              <td class="num delta-pos">+ $750.00</td>
+              <td class="num"><strong>$7,950.00</strong></td>
+            </tr>
+            <tr>
+              <td>Liability</td>
+              <td class="num">$4,800.00</td>
+              <td class="num delta-pos">+ $500.00</td>
+              <td class="num"><strong>$5,300.00</strong></td>
+            </tr>
+            <tr class="total">
+              <td>Total IAT Share</td>
+              <td class="num">$12,000.00</td>
+              <td class="num">+ $1,250.00</td>
+              <td class="num">$13,250.00</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- Billing Routing -->
+    <div class="card">
+      <div class="card-header"><span class="icon">🏦</span> Billing &amp; Routing</div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Bill To</label>
+            <select>
+              <option selected>Agent / Broker</option>
+              <option>Direct Insured</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Payment Plan</label>
+            <select>
+              <option selected>Pay in Full</option>
+              <option>Installment (2-pay)</option>
+              <option>Installment (4-pay)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Additional Premium Billed</label>
+            <input type="text" value="$1,250.00" readonly />
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" value="2025-07-31" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left column -->
+
+  <!-- ─── RIGHT COLUMN (summary sidebar) ─── -->
+  <div style="display:flex; flex-direction:column; gap:20px;">
+
+    <!-- Transaction Summary -->
+    <div class="card">
+      <div class="card-header"><span class="icon">📊</span> Transaction Summary</div>
+      <div class="card-body">
+        <div class="summary-block">
+          <div class="s-title">Quota Share Terms</div>
+          <div class="summary-row">
+            <span class="s-label">Program Type</span>
+            <span class="s-val">Following</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Following Share</span>
+            <span class="s-val">25%</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Lead Carrier</span>
+            <span class="s-val">Global Wings Re</span>
+          </div>
+        </div>
+
+        <div class="summary-block">
+          <div class="s-title">Lead Endorsement</div>
+          <div class="summary-row">
+            <span class="s-label">Ref #</span>
+            <span class="s-val">GWR-ENDORS-0441</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Change Type</span>
+            <span class="s-val">Aircraft Added</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Lead Total Change</span>
+            <span class="s-val">+ $5,000.00</span>
+          </div>
+        </div>
+
+        <div class="summary-block">
+          <div class="s-title">IAT Premium Impact</div>
+          <div class="summary-row">
+            <span class="s-label">Original IAT Premium</span>
+            <span class="s-val">$12,000.00</span>
+          </div>
+          <div class="summary-row change-premium-row">
+            <span class="s-label">Change Premium (25%)</span>
+            <span class="s-val">+ $1,250.00</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="s-label">New IAT Total</span>
+            <span class="s-val">$13,250.00</span>
+          </div>
+        </div>
+
+        <div class="summary-block">
+          <div class="s-title">Hull vs. Liability Breakdown</div>
+          <div class="split-bar mt-8">
+            <div class="hull" style="width:60%"></div>
+            <div class="liab" style="width:40%"></div>
+          </div>
+          <div class="split-legend">
+            <span><i class="dot dot-hull"></i>Hull</span>
+            <span><i class="dot dot-liab"></i>Liability</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Hull</span>
+            <span class="s-val">$7,950.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Liability</span>
+            <span class="s-val">$5,300.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow Status -->
+    <div class="card">
+      <div class="card-header"><span class="icon">🔄</span> Transaction Workflow</div>
+      <div class="card-body">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot done"></div>
+            <div>
+              <div class="tl-label">Lead Endorsement Received</div>
+              <div class="tl-sub">06/18/2025 — GWR-ENDORS-0441</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot done"></div>
+            <div>
+              <div class="tl-label">Underwriter Review</div>
+              <div class="tl-sub">06/20/2025 — R. Lombardo</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div>
+              <div class="tl-label">Change Premium Entry &amp; Split</div>
+              <div class="tl-sub">In progress — awaiting save</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot todo"></div>
+            <div>
+              <div class="tl-label">Supervisor Approval</div>
+              <div class="tl-sub">Pending</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot todo"></div>
+            <div>
+              <div class="tl-label">Premium Booked / Billed</div>
+              <div class="tl-sub">Pending</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No-Document Notice -->
+    <div class="card">
+      <div class="card-header"><span class="icon">📄</span> Document Notice</div>
+      <div class="card-body">
+        <div class="info-callout" style="margin-bottom:0; font-size:12px;">
+          <strong>No Endorsement Document Issued.</strong><br />
+          Following policies do not generate insured-facing endorsement documents.
+          Only the two-page quota share participation form is on file.
+          All coverage terms are governed by the lead carrier's policy.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right column -->
+
+</div><!-- /main -->
+
+<!-- ══════════════════════ ACTION BAR ══════════════════════ -->
+<div class="action-bar">
+  <button class="btn btn-primary">💾 Save Draft</button>
+  <button class="btn btn-accent">✅ Submit for Approval</button>
+  <div class="spacer"></div>
+  <button class="btn btn-secondary">🖨️ Preview Summary</button>
+  <button class="btn btn-danger">✖ Cancel Transaction</button>
+</div>
+
+</body>
+</html>
